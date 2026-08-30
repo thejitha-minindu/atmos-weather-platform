@@ -4,10 +4,6 @@
 
 Accepted
 
-## Date
-
-2026-08-30
-
 ## Context
 
 Atmos is a production-oriented full-stack weather intelligence platform.
