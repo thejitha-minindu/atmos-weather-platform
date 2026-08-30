@@ -766,24 +766,28 @@ Potential status codes include:
 
 | Status | Purpose                                  |
 | ------ | ---------------------------------------- |
-| `400`  | Invalid request                          |
+| `400`  | Malformed JSON or invalid syntax         |
 | `401`  | Authentication required                  |
 | `403`  | Operation not permitted                  |
 | `404`  | Resource not found                       |
 | `409`  | Resource conflict                        |
+| `422`  | Unprocessable content / validation failure |
 | `429`  | Rate limit exceeded                      |
 | `500`  | Unexpected internal error                |
 | `502`  | Invalid/upstream provider response       |
 | `503`  | Required service temporarily unavailable |
+| `504`  | Upstream provider timeout                |
 
-A conceptual error response is:
+The backend standardizes on the RFC 7807 Problem Details specification (`application/problem+json`) with stable error codes and correlation request IDs (detailed in the API contract). A conceptual error response is:
 
 ```json
 {
-  "error": {
-    "code": "WEATHER_PROVIDER_UNAVAILABLE",
-    "message": "Weather information is temporarily unavailable."
-  }
+  "type": "https://atmos.example/problems/validation-error",
+  "title": "Validation failed",
+  "status": 422,
+  "detail": "One or more request values are invalid.",
+  "code": "VALIDATION_ERROR",
+  "requestId": "req_01J6ABCDEF1234567890"
 }
 ```
 
@@ -894,32 +898,34 @@ Performance claims should be based on measured results rather than assumptions.
 
 ## 25. Health Checks
 
-The backend will expose a health endpoint.
+The backend exposes dedicated health endpoints:
 
-Planned endpoint:
+* `GET /api/v1/health` (Liveness): Zero-dependency check to verify that the NestJS process is responsive.
+* `GET /api/v1/health/ready` (Readiness): Checks whether required internal dependencies (PostgreSQL and Redis) are connected and ready to serve traffic.
+
+Planned endpoints:
 
 ```http
-GET /health
+GET /api/v1/health
+GET /api/v1/health/ready
 ```
 
-The health system may monitor:
-
-* Backend application
-* PostgreSQL connectivity
-* Redis connectivity
-* External provider availability
-
-A conceptual response is:
+Conceptual readiness response:
 
 ```json
 {
-  "status": "ok",
-  "database": "healthy",
-  "redis": "healthy"
+  "data": {
+    "status": "ready",
+    "checks": {
+      "postgres": "up",
+      "redis": "up"
+    },
+    "timestamp": "2026-08-30T08:45:12.120Z"
+  }
 }
 ```
 
-Detailed infrastructure information should not be exposed unnecessarily in production.
+External weather providers such as Open-Meteo are deliberately excluded from readiness checks to prevent third-party rate limits or transient network issues from affecting local service readiness probes.
 
 ---
 
@@ -939,9 +945,11 @@ Potential resources include:
 /api/v1/weather
 /api/v1/locations
 /api/v1/auth
+/api/v1/users
 /api/v1/favorites
 /api/v1/history
 /api/v1/preferences
+/api/v1/health
 ```
 
 The exact API contract will be documented separately before backend implementation.
