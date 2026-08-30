@@ -20,7 +20,7 @@ A guest user can:
 - View daily forecasts
 - View weather charts
 - Change units temporarily
-- Use dark/light mode
+- Use light/dark/system theme
 
 ### Registered User
 
@@ -30,7 +30,7 @@ A registered user can perform all guest actions and can also:
 - View favorite locations
 - View search history
 - Save preferred units
-- Save theme preferences
+- Save theme preferences (light, dark, system)
 - Synchronize preferences across devices
 
 ---
@@ -62,7 +62,7 @@ A registered user can perform all guest actions and can also:
 - Precipitation chart
 - Weather icons
 - Responsive layout
-- Dark/light mode
+- Dark/light/system mode
 
 ### User Features
 
@@ -82,7 +82,7 @@ A registered user can perform all guest actions and can also:
 - Rate limiting
 - Redis caching
 - Structured logging
-- Health endpoint
+- Health endpoints (liveness and readiness)
 
 ### Persistence
 
